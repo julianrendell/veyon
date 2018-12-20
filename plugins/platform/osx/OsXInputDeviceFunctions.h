@@ -1,5 +1,5 @@
 /*
- * LinuxInputDeviceFunctions.h - declaration of LinuxInputDeviceFunctions class
+ * OsXInputDeviceFunctions.h - declaration of OsXInputDeviceFunctions class
  *
  * Copyright (c) 2017-2018 Tobias Junghans <tobydox@veyon.io>
  *
@@ -28,11 +28,11 @@
 
 // clazy:excludeall=copyable-polymorphic
 
-class LinuxInputDeviceFunctions : public PlatformInputDeviceFunctions
+class OsXInputDeviceFunctions : public PlatformInputDeviceFunctions
 {
 public:
-	LinuxInputDeviceFunctions();
-	virtual ~LinuxInputDeviceFunctions() = default;
+	OsXInputDeviceFunctions();
+	virtual ~OsXInputDeviceFunctions() = default;
 
 	void enableInputDevices() override;
 	void disableInputDevices() override;

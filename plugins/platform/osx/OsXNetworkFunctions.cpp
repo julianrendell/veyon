@@ -1,5 +1,5 @@
 /*
- * LinuxNetworkFunctions.cpp - implementation of LinuxNetworkFunctions class
+ * OsXNetworkFunctions.cpp - implementation of OsXNetworkFunctions class
  *
  * Copyright (c) 2017-2018 Tobias Junghans <tobydox@veyon.io>
  *
@@ -27,9 +27,9 @@
 
 #include <QProcess>
 
-#include "LinuxNetworkFunctions.h"
+#include "OsXNetworkFunctions.h"
 
-bool LinuxNetworkFunctions::ping( const QString& hostAddress )
+bool OsXNetworkFunctions::ping( const QString& hostAddress )
 {
 	QProcess pingProcess;
 	pingProcess.start( QStringLiteral("ping"), { QStringLiteral("-W"), QStringLiteral("1"), QStringLiteral("-c"), QString::number( PingTimeout / 1000 ), hostAddress } );
@@ -40,7 +40,7 @@ bool LinuxNetworkFunctions::ping( const QString& hostAddress )
 
 
 
-bool LinuxNetworkFunctions::configureFirewallException( const QString& applicationPath, const QString& description, bool enabled )
+bool OsXNetworkFunctions::configureFirewallException( const QString& applicationPath, const QString& description, bool enabled )
 {
 	Q_UNUSED(applicationPath)
 	Q_UNUSED(description)
@@ -51,7 +51,7 @@ bool LinuxNetworkFunctions::configureFirewallException( const QString& applicati
 
 
 
-bool LinuxNetworkFunctions::configureSocketKeepalive( Socket socket, bool enabled, int idleTime, int interval, int probes )
+bool OsXNetworkFunctions::configureSocketKeepalive( Socket socket, bool enabled, int idleTime, int interval, int probes )
 {
 	int optval;
 	socklen_t optlen = sizeof(optval);
@@ -65,12 +65,13 @@ bool LinuxNetworkFunctions::configureSocketKeepalive( Socket socket, bool enable
 		return false;
 	}
 
-	optval = std::max<int>( 1, idleTime / 1000 );
-	if( setsockopt( fd, IPPROTO_TCP, TCP_KEEPIDLE, &optval, optlen ) < 0 )
-	{
-		qWarning() << Q_FUNC_INFO << "could not set TCP_KEEPIDLE";
-		return false;
-	}
+// Linux specific? Ref: https://stackoverflow.com/questions/15860127/how-to-configure-tcp-keepalive-under-mac-os-x/23900051
+//    optval = std::max<int>( 1, idleTime / 1000 );
+//    if( setsockopt( fd, IPPROTO_TCP, TCP_KEEPIDLE, &optval, optlen ) < 0 )
+//    {
+//        qWarning() << Q_FUNC_INFO << "could not set TCP_KEEPIDLE";
+//        return false;
+//    }
 
 	optval = std::max<int>( 1, interval / 1000 );
 	if( setsockopt( fd, IPPROTO_TCP, TCP_KEEPINTVL, &optval, optlen ) < 0 )

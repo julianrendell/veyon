@@ -1,5 +1,5 @@
 /*
- * LinuxServiceCore.h - declaration of LinuxServiceCore class
+ * OsXServiceCore.h - declaration of OsXServiceCore class
  *
  * Copyright (c) 2017-2018 Tobias Junghans <tobydox@veyon.io>
  *
@@ -26,25 +26,24 @@
 
 #include <QProcessEnvironment>
 
-#include "LinuxCoreFunctions.h"
+#include "OsXCoreFunctions.h"
 #include "PlatformServiceCore.h"
 
 // clazy:excludeall=copyable-polymorphic
 
-class LinuxServiceCore : public QObject, PlatformServiceCore
+class OsXServiceCore : public QObject, PlatformServiceCore
 {
 	Q_OBJECT
 public:
-	LinuxServiceCore( QObject* parent = nullptr );
-	~LinuxServiceCore();
+	OsXServiceCore( QObject* parent = nullptr );
+	~OsXServiceCore();
 
 	void run();
 
 private slots:
 	void connectToLoginManager();
-	void startServer( const QString& login1SessionId, const QDBusObjectPath& sessionObjectPath );
-	void stopServer( const QString& login1SessionId, const QDBusObjectPath& sessionObjectPath );
-	void stopServer( const QString& sessionPath );
+	void startServer( const QString& login1SessionId);
+	void stopServer( const QString& login1SessionId);
 	void stopAllServers();
 
 private:
@@ -58,19 +57,6 @@ private:
 		SessionUptimeProbingInterval = 1000,
 	};
 
-	typedef struct {
-		QString id;
-		quint32 uid;
-		QString name;
-		QString seatId;
-		QDBusObjectPath path;
-	} LoginDBusSession;
-
-	typedef struct {
-		QString id;
-		QString path;
-	} LoginDBusSessionSeat;
-
 	QStringList listSessions();
 
 	static QVariant getSessionProperty( const QString& session, const QString& property );
@@ -80,12 +66,9 @@ private:
 	static QString getSessionType( const QString& session );
 	static QString getSessionDisplay( const QString& session );
 	static QString getSessionId( const QString& session );
-	static LoginDBusSessionSeat getSessionSeat( const QString& session );
-
 	static QProcessEnvironment getSessionEnvironment( int sessionLeaderPid );
 
-	LinuxCoreFunctions::DBusInterfacePointer m_loginManager;
-	QMap<QString, QProcess *> m_serverProcesses;
+    QMap<QString, QProcess *> m_serverProcesses;
 	bool m_multiSession;
 
 };

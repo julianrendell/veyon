@@ -1,5 +1,5 @@
 /*
- * LinuxUserFunctions.cpp - implementation of LinuxUserFunctions class
+ * OsXUserFunctions.cpp - implementation of OsXUserFunctions class
  *
  * Copyright (c) 2017-2018 Tobias Junghans <tobydox@veyon.io>
  *
@@ -26,15 +26,17 @@
 #include <QDBusReply>
 #include <QProcess>
 
-#include "LinuxCoreFunctions.h"
-#include "LinuxDesktopIntegration.h"
-#include "LinuxUserFunctions.h"
+#include "OsXCoreFunctions.h"
+#include "OsXDesktopIntegration.h"
+#include "OsXUserFunctions.h"
 
 #include <pwd.h>
 #include <unistd.h>
 
+#include <CoreServices/CoreServices.h>
+#include <Carbon/Carbon.h>
 
-QString LinuxUserFunctions::fullName( const QString& username )
+QString OsXUserFunctions::fullName( const QString& username )
 {
 	auto pw_entry = getpwnam( VeyonCore::stripDomain( username ).toUtf8().constData() );
 
@@ -57,7 +59,7 @@ QString LinuxUserFunctions::fullName( const QString& username )
 
 
 
-QStringList LinuxUserFunctions::userGroups( bool queryDomainGroups )
+QStringList OsXUserFunctions::userGroups( bool queryDomainGroups )
 {
 	Q_UNUSED(queryDomainGroups);
 
@@ -163,7 +165,7 @@ QStringList LinuxUserFunctions::userGroups( bool queryDomainGroups )
 
 
 
-QStringList LinuxUserFunctions::groupsOfUser( const QString& username, bool queryDomainGroups )
+QStringList OsXUserFunctions::groupsOfUser( const QString& username, bool queryDomainGroups )
 {
 	Q_UNUSED(queryDomainGroups);
 
@@ -193,7 +195,7 @@ QStringList LinuxUserFunctions::groupsOfUser( const QString& username, bool quer
 
 
 
-QString LinuxUserFunctions::currentUser()
+QString OsXUserFunctions::currentUser()
 {
 	QString username;
 
@@ -234,7 +236,7 @@ QString LinuxUserFunctions::currentUser()
 
 
 
-QStringList LinuxUserFunctions::loggedOnUsers()
+QStringList OsXUserFunctions::loggedOnUsers()
 {
 	QStringList users;
 
@@ -262,7 +264,7 @@ QStringList LinuxUserFunctions::loggedOnUsers()
 
 
 
-void LinuxUserFunctions::logon( const QString& username, const QString& password )
+void OsXUserFunctions::logon( const QString& username, const QString& password )
 {
 	Q_UNUSED(username);
 	Q_UNUSED(password);
@@ -272,37 +274,23 @@ void LinuxUserFunctions::logon( const QString& username, const QString& password
 
 
 
-void LinuxUserFunctions::logout()
+void OsXUserFunctions::logout()
 {
-	// logout via common session managers
-	LinuxCoreFunctions::kdeSessionManager()->asyncCall( QStringLiteral("logout"),
-														static_cast<int>( LinuxDesktopIntegration::KDE::ShutdownConfirmNo ),
-														static_cast<int>( LinuxDesktopIntegration::KDE::ShutdownTypeLogout ),
-														static_cast<int>( LinuxDesktopIntegration::KDE::ShutdownModeForceNow ) );
-	LinuxCoreFunctions::gnomeSessionManager()->asyncCall( QStringLiteral("Logout"),
-														  static_cast<int>( LinuxDesktopIntegration::Gnome::GSM_MANAGER_LOGOUT_MODE_FORCE ) );
-	LinuxCoreFunctions::mateSessionManager()->asyncCall( QStringLiteral("Logout"),
-														 static_cast<int>( LinuxDesktopIntegration::Mate::GSM_LOGOUT_MODE_FORCE ) );
-
-	// Xfce logout
-	QProcess::startDetached( QStringLiteral("xfce4-session-logout --logout") );
-
-	// LXDE logout
-	QProcess::startDetached( QStringLiteral("kill -TERM %1").
-							 arg( QProcessEnvironment::systemEnvironment().value( QStringLiteral("_LXSESSION_PID") ).toInt() ) );
-
-	// terminate session via systemd
-	LinuxCoreFunctions::systemdLoginManager()->asyncCall( QStringLiteral("TerminateSession"),
-														  QProcessEnvironment::systemEnvironment().value( QStringLiteral("XDG_SESSION_ID") ) );
-
-	// close session via ConsoleKit as a last resort
-	LinuxCoreFunctions::consoleKitManager()->asyncCall( QStringLiteral("CloseSession"),
-														QProcessEnvironment::systemEnvironment().value( QStringLiteral("XDG_SESSION_COOKIE") ) );
+    OSStatus error = noErr;
+    //error = SendAppleEventToSystemProcess(kAEReallyLogOut);
+    if (error == noErr)
+    {
+        // add log that logout request was successfull
+    }
+    else
+    {
+        // add log that logout request was not successfull
+    }
 }
 
 
 
-bool LinuxUserFunctions::authenticate( const QString& username, const QString& password )
+bool OsXUserFunctions::authenticate( const QString& username, const QString& password )
 {
 	QProcess p;
 	p.start( QStringLiteral( "veyon-auth-helper" ) );
@@ -327,7 +315,7 @@ bool LinuxUserFunctions::authenticate( const QString& username, const QString& p
 
 
 
-uid_t LinuxUserFunctions::userIdFromName( const QString& username )
+uid_t OsXUserFunctions::userIdFromName( const QString& username )
 {
 	const auto pw_entry = getpwnam( username.toUtf8().constData() );
 

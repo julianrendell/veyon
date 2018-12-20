@@ -1,5 +1,5 @@
 /*
- * LinuxCoreFunctions.h - declaration of LinuxCoreFunctions class
+ * OsXCoreFunctions.h - declaration of OsXCoreFunctions class
  *
  * Copyright (c) 2017-2018 Tobias Junghans <tobydox@veyon.io>
  *
@@ -23,17 +23,16 @@
  */
 
 #pragma once
-
-#include <QDBusInterface>
+#include <CoreServices/CoreServices.h>
 
 #include "PlatformCoreFunctions.h"
 
 // clazy:excludeall=copyable-polymorphic
 
-class LinuxCoreFunctions : public PlatformCoreFunctions
+class OsXCoreFunctions : public PlatformCoreFunctions
 {
 public:
-	LinuxCoreFunctions();
+	OsXCoreFunctions();
 
 	void initNativeLoggingSystem( const QString& appName ) override;
 	void writeToNativeLoggingSystem( const QString& message, Logger::LogLevel loglevel ) override;
@@ -57,15 +56,6 @@ public:
 
 	QString genericUrlHandler() const override;
 
-	typedef QSharedPointer<QDBusInterface> DBusInterfacePointer;
-
-	static DBusInterfacePointer kdeSessionManager();
-	static DBusInterfacePointer gnomeSessionManager();
-	static DBusInterfacePointer mateSessionManager();
-	static DBusInterfacePointer xfcePowerManager();
-	static DBusInterfacePointer systemdLoginManager();
-	static DBusInterfacePointer consoleKitManager();
-
 private:
 	int m_screenSaverTimeout;
 	int m_screenSaverPreferBlanking;
@@ -74,4 +64,5 @@ private:
 	unsigned short m_dpmsSuspendTimeout;
 	unsigned short m_dpmsOffTimeout;
 
+    static OSStatus SendAppleEventToSystemProcess(AEEventID eventToSendID);
 };

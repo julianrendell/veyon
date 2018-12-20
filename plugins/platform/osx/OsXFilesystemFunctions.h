@@ -28,7 +28,7 @@
 
 // clazy:excludeall=copyable-polymorphic
 
-class LinuxFilesystemFunctions : public PlatformFilesystemFunctions
+class OsXFilesystemFunctions : public PlatformFilesystemFunctions
 {
 public:
 	QString personalAppDataPath() const override;

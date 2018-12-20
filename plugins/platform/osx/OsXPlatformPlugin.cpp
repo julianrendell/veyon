@@ -1,5 +1,5 @@
 /*
- * LinuxPlatformPlugin.cpp - implementation of LinuxPlatformPlugin class
+ * OsXPlatformPlugin.cpp - implementation of OsXPlatformPlugin class
  *
  * Copyright (c) 2017-2018 Tobias Junghans <tobydox@veyon.io>
  *
@@ -22,25 +22,23 @@
  *
  */
 
-#include "LinuxPlatformPlugin.h"
+#include "OsXPlatformPlugin.h"
 
 
-LinuxPlatformPlugin::LinuxPlatformPlugin( QObject* parent ) :
+OsXPlatformPlugin::OsXPlatformPlugin( QObject* parent ) :
 	QObject( parent ),
-	m_linuxCoreFunctions(),
-	m_linuxFilesystemFunctions(),
-	m_linuxInputDeviceFunctions(),
-	m_linuxNetworkFunctions(),
-	m_linuxServiceFunctions(),
-	m_linuxUserFunctions()
+	m_OsXCoreFunctions(),
+	m_OsXFilesystemFunctions(),
+	m_OsXInputDeviceFunctions(),
+	m_OsXNetworkFunctions(),
+	m_OsXServiceFunctions(),
+	m_OsXUserFunctions()
 {
-	// make sure to load global config from default config dirs independent of environment variables
-	qunsetenv( "XDG_CONFIG_DIRS" );
 }
 
 
 
-LinuxPlatformPlugin::~LinuxPlatformPlugin()
+OsXPlatformPlugin::~OsXPlatformPlugin()
 {
-	m_linuxInputDeviceFunctions.enableInputDevices();
+	m_OsXInputDeviceFunctions.enableInputDevices();
 }

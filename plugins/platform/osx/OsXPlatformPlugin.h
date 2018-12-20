@@ -1,5 +1,5 @@
 /*
- * LinuxPlatformPlugin.h - declaration of LinuxPlatformPlugin class
+ * OsXPlatformPlugin.h - declaration of OsXPlatformPlugin class
  *
  * Copyright (c) 2017-2018 Tobias Junghans <tobydox@veyon.io>
  *
@@ -26,40 +26,40 @@
 
 #include "PluginInterface.h"
 #include "PlatformPluginInterface.h"
-#include "LinuxCoreFunctions.h"
-#include "LinuxFilesystemFunctions.h"
-#include "LinuxInputDeviceFunctions.h"
-#include "LinuxNetworkFunctions.h"
-#include "LinuxServiceFunctions.h"
-#include "LinuxUserFunctions.h"
+#include "OsXCoreFunctions.h"
+#include "OsXFilesystemFunctions.h"
+#include "OsXInputDeviceFunctions.h"
+#include "OsXNetworkFunctions.h"
+#include "OsXServiceFunctions.h"
+#include "OsXUserFunctions.h"
 
-class LinuxPlatformPlugin : public QObject, PlatformPluginInterface, PluginInterface
+class OsXPlatformPlugin : public QObject, PlatformPluginInterface, PluginInterface
 {
 	Q_OBJECT
-	Q_PLUGIN_METADATA(IID "io.veyon.Veyon.Plugins.LinuxPlatform")
+	Q_PLUGIN_METADATA(IID "io.veyon.Veyon.Plugins.OsXPlatform")
 	Q_INTERFACES(PluginInterface PlatformPluginInterface)
 public:
-	LinuxPlatformPlugin( QObject* parent = nullptr );
-	~LinuxPlatformPlugin() override;
+	OsXPlatformPlugin( QObject* parent = nullptr );
+	~OsXPlatformPlugin() override;
 
 	Plugin::Uid uid() const override
 	{
-		return QStringLiteral("63928a8a-4c51-4bfd-888e-9e13c6f3907a");
+        return QStringLiteral("557107e3-22f6-4637-92d8-c3eb08e2ed5a"); // from https://www.uuidgenerator.net
 	}
 
 	QVersionNumber version() const override
 	{
-		return QVersionNumber( 1, 1 );
+		return QVersionNumber( 0, 1 );
 	}
 
 	QString name() const override
 	{
-		return QStringLiteral( "LinuxPlatformPlugin" );
+		return QStringLiteral( "OsXPlatformPlugin" );
 	}
 
 	QString description() const override
 	{
-		return tr( "Plugin implementing abstract functions for the Linux platform" );
+		return tr( "Plugin implementing abstract functions for the OsX platform" );
 	}
 
 	QString vendor() const override
@@ -79,40 +79,40 @@ public:
 
 	PlatformCoreFunctions& coreFunctions() override
 	{
-		return m_linuxCoreFunctions;
+		return m_OsXCoreFunctions;
 	}
 
 	PlatformFilesystemFunctions& filesystemFunctions() override
 	{
-		return m_linuxFilesystemFunctions;
+		return m_OsXFilesystemFunctions;
 	}
 
 	PlatformInputDeviceFunctions& inputDeviceFunctions() override
 	{
-		return m_linuxInputDeviceFunctions;
+		return m_OsXInputDeviceFunctions;
 	}
 
 	PlatformNetworkFunctions& networkFunctions() override
 	{
-		return m_linuxNetworkFunctions;
+		return m_OsXNetworkFunctions;
 	}
 
 	PlatformServiceFunctions& serviceFunctions() override
 	{
-		return m_linuxServiceFunctions;
+		return m_OsXServiceFunctions;
 	}
 
 	PlatformUserFunctions& userFunctions() override
 	{
-		return m_linuxUserFunctions;
+		return m_OsXUserFunctions;
 	}
 
 private:
-	LinuxCoreFunctions m_linuxCoreFunctions;
-	LinuxFilesystemFunctions m_linuxFilesystemFunctions;
-	LinuxInputDeviceFunctions m_linuxInputDeviceFunctions;
-	LinuxNetworkFunctions m_linuxNetworkFunctions;
-	LinuxServiceFunctions m_linuxServiceFunctions;
-	LinuxUserFunctions m_linuxUserFunctions;
+	OsXCoreFunctions m_OsXCoreFunctions;
+	OsXFilesystemFunctions m_OsXFilesystemFunctions;
+	OsXInputDeviceFunctions m_OsXInputDeviceFunctions;
+	OsXNetworkFunctions m_OsXNetworkFunctions;
+	OsXServiceFunctions m_OsXServiceFunctions;
+	OsXUserFunctions m_OsXUserFunctions;
 
 };

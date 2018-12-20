@@ -1,5 +1,5 @@
 /*
- * LinuxFilesystemFunctions.cpp - implementation of LinuxFilesystemFunctions class
+ * OsXFilesystemFunctions.cpp - implementation of OsXFilesystemFunctions class
  *
  * Copyright (c) 2018 Tobias Junghans <tobydox@veyon.io>
  *
@@ -28,24 +28,24 @@
 #include <unistd.h>
 #include <sys/stat.h>
 
-#include "LinuxFilesystemFunctions.h"
+#include "OsXFilesystemFunctions.h"
 
 
-QString LinuxFilesystemFunctions::personalAppDataPath() const
+QString OsXFilesystemFunctions::personalAppDataPath() const
 {
 	return QDir::homePath() + QDir::separator() + QStringLiteral(".veyon");
 }
 
 
 
-QString LinuxFilesystemFunctions::globalAppDataPath() const
+QString OsXFilesystemFunctions::globalAppDataPath() const
 {
-	return QStringLiteral( "/etc/veyon" );
+	return QStringLiteral( "/usr/local/etc/veyon" ); // Find an API to determine this?!
 }
 
 
 
-QString LinuxFilesystemFunctions::globalTempPath() const
+QString OsXFilesystemFunctions::globalTempPath() const
 {
 	return QStringLiteral( "/tmp" );
 
@@ -53,14 +53,14 @@ QString LinuxFilesystemFunctions::globalTempPath() const
 
 
 
-QString LinuxFilesystemFunctions::fileOwnerGroup( const QString& filePath )
+QString OsXFilesystemFunctions::fileOwnerGroup( const QString& filePath )
 {
 	return QFileInfo( filePath ).group();
 }
 
 
 
-bool LinuxFilesystemFunctions::setFileOwnerGroup( const QString& filePath, const QString& ownerGroup )
+bool OsXFilesystemFunctions::setFileOwnerGroup( const QString& filePath, const QString& ownerGroup )
 {
 	struct stat statBuffer{};
 	if( stat( filePath.toUtf8().constData(), &statBuffer ) != 0 )
@@ -89,7 +89,7 @@ bool LinuxFilesystemFunctions::setFileOwnerGroup( const QString& filePath, const
 
 
 
-bool LinuxFilesystemFunctions::setFileOwnerGroupPermissions( const QString& filePath, QFile::Permissions permissions )
+bool OsXFilesystemFunctions::setFileOwnerGroupPermissions( const QString& filePath, QFile::Permissions permissions )
 {
 	QFile file( filePath );
 

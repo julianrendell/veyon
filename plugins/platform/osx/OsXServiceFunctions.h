@@ -1,5 +1,5 @@
 /*
- * LinuxServiceFunctions.h - declaration of LinuxServiceFunctions class
+ * OsXServiceFunctions.h - declaration of OsXServiceFunctions class
  *
  * Copyright (c) 2017-2018 Tobias Junghans <tobydox@veyon.io>
  *
@@ -28,7 +28,7 @@
 
 // clazy:excludeall=copyable-polymorphic
 
-class LinuxServiceFunctions : public PlatformServiceFunctions
+class OsXServiceFunctions : public PlatformServiceFunctions
 {
 public:
 	QString veyonServiceName() const override;
@@ -45,6 +45,6 @@ public:
 	void manageServerInstances() override;
 
 private:
-	static int systemctl( const QStringList& arguments );
+	static int launchd( const QStringList& arguments );
 
 };

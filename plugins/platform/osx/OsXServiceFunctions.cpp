@@ -1,5 +1,5 @@
 /*
- * LinuxServiceFunctions.cpp - implementation of LinuxServiceFunctions class
+ * OsXServiceFunctions.cpp - implementation of OsXServiceFunctions class
  *
  * Copyright (c) 2017-2018 Tobias Junghans <tobydox@veyon.io>
  *
@@ -22,18 +22,18 @@
  *
  */
 
-#include "LinuxServiceCore.h"
-#include "LinuxServiceFunctions.h"
+#include "OsXServiceCore.h"
+#include "OsXServiceFunctions.h"
 
 
-QString LinuxServiceFunctions::veyonServiceName() const
+QString OsXServiceFunctions::veyonServiceName() const
 {
 	return QStringLiteral("veyon");
 }
 
 
 
-bool LinuxServiceFunctions::isRegistered( const QString& name )
+bool OsXServiceFunctions::isRegistered( const QString& name )
 {
 	Q_UNUSED(name);
 
@@ -44,28 +44,28 @@ bool LinuxServiceFunctions::isRegistered( const QString& name )
 
 
 
-bool LinuxServiceFunctions::isRunning( const QString& name )
+bool OsXServiceFunctions::isRunning( const QString& name )
 {
-	return systemctl( { QStringLiteral("status"), name } ) == 0;
+    return false; // forced fail
 }
 
 
 
-bool LinuxServiceFunctions::start( const QString& name )
+bool OsXServiceFunctions::start( const QString& name )
 {
-	return systemctl( { QStringLiteral("start"), name } ) == 0;
+	return false; // forced fail
 }
 
 
 
-bool LinuxServiceFunctions::stop( const QString& name )
+bool OsXServiceFunctions::stop( const QString& name )
 {
-	return systemctl( { QStringLiteral("stop"), name } ) == 0;
+	return false; // forced fail
 }
 
 
 
-bool LinuxServiceFunctions::install( const QString& name, const QString& filePath,
+bool OsXServiceFunctions::install( const QString& name, const QString& filePath,
 									 StartMode startMode, const QString& displayName )
 {
 	Q_UNUSED(name)
@@ -80,7 +80,7 @@ bool LinuxServiceFunctions::install( const QString& name, const QString& filePat
 
 
 
-bool LinuxServiceFunctions::uninstall( const QString& name )
+bool OsXServiceFunctions::uninstall( const QString& name )
 {
 	Q_UNUSED(name)
 
@@ -91,39 +91,34 @@ bool LinuxServiceFunctions::uninstall( const QString& name )
 
 
 
-bool LinuxServiceFunctions::setStartMode( const QString& name, PlatformServiceFunctions::StartMode startMode )
+bool OsXServiceFunctions::setStartMode( const QString& name, PlatformServiceFunctions::StartMode startMode )
 {
-	if( startMode == StartModeAuto )
-	{
-		return systemctl( { QStringLiteral("enable"), name } ) == 0;
-	}
-
-	return systemctl( { QStringLiteral("disable"), name } ) == 0;
+	return false; // forced fail
 }
 
 
 
-bool LinuxServiceFunctions::runAsService( const QString& name, const std::function<void(void)>& serviceMain )
+bool OsXServiceFunctions::runAsService( const QString& name, const std::function<void(void)>& serviceMain )
 {
 	Q_UNUSED(name);
 
-	serviceMain();
+	//serviceMain();
 
-	return true;
+    return false; // forced fail
 }
 
 
 
-void LinuxServiceFunctions::manageServerInstances()
+void OsXServiceFunctions::manageServerInstances()
 {
-	LinuxServiceCore serviceCore;
-	serviceCore.run();
+//    OsXServiceCore serviceCore;
+//    serviceCore.run();
 }
 
 
 
-int LinuxServiceFunctions::systemctl( const QStringList& arguments )
+int OsXServiceFunctions::launchd( const QStringList& arguments )
 {
-	return QProcess::execute( QStringLiteral("systemctl"),
-							  QStringList( { QStringLiteral("--no-pager"), QStringLiteral("-q") } ) + arguments );
+//    return QProcess::execute( QStringLiteral("systemctl"),
+//                              QStringList( { QStringLiteral("--no-pager"), QStringLiteral("-q") } ) + arguments );
 }

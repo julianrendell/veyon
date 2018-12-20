@@ -1,5 +1,5 @@
 /*
- * LinuxUserFunctions.h - declaration of LinuxUserFunctions class
+ * OsXUserFunctions.h - declaration of OsXUserFunctions class
  *
  * Copyright (c) 2017-2018 Tobias Junghans <tobydox@veyon.io>
  *
@@ -30,7 +30,7 @@
 
 // clazy:excludeall=copyable-polymorphic
 
-class LinuxUserFunctions : public PlatformUserFunctions
+class OsXUserFunctions : public PlatformUserFunctions
 {
 public:
 	QString fullName( const QString& username ) override;

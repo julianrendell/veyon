@@ -1,5 +1,5 @@
 /*
- * LinuxCoreFunctions.cpp - implementation of LinuxCoreFunctions class
+ * OsXCoreFunctions.cpp - implementation of OsXCoreFunctions class
  *
  * Copyright (c) 2017-2018 Tobias Junghans <tobydox@veyon.io>
  *
@@ -29,17 +29,16 @@
 #include <QWidget>
 
 #include <unistd.h>
+#include <stdio.h>
 
-#include "LinuxCoreFunctions.h"
-#include "LinuxDesktopIntegration.h"
-#include "LinuxUserFunctions.h"
+//#include <Foundation/Foundation.h>
+
+#include "OsXCoreFunctions.h"
+#include "OsXDesktopIntegration.h"
+#include "OsXUserFunctions.h"
 #include "PlatformUserFunctions.h"
 
-#include <X11/XKBlib.h>
-#include <X11/extensions/dpms.h>
-
-
-LinuxCoreFunctions::LinuxCoreFunctions() :
+OsXCoreFunctions::OsXCoreFunctions() :
 	m_screenSaverTimeout( 0 ),
 	m_screenSaverPreferBlanking( 0 ),
 	m_dpmsEnabled( false ),
@@ -49,176 +48,122 @@ LinuxCoreFunctions::LinuxCoreFunctions() :
 {
 }
 
-
-
-void LinuxCoreFunctions::initNativeLoggingSystem( const QString& appName )
+void OsXCoreFunctions::initNativeLoggingSystem( const QString& appName )
 {
 	Q_UNUSED(appName)
 }
 
-
-
-void LinuxCoreFunctions::writeToNativeLoggingSystem( const QString& message, Logger::LogLevel loglevel )
+void OsXCoreFunctions::writeToNativeLoggingSystem( const QString& message, Logger::LogLevel loglevel )
 {
 	Q_UNUSED(message)
 	Q_UNUSED(loglevel)
 }
 
-
-
-void LinuxCoreFunctions::reboot()
+void OsXCoreFunctions::reboot()
 {
+    OSStatus error = noErr;
+    
 	if( isRunningAsAdmin() )
 	{
 		QProcess::startDetached( QStringLiteral("reboot") );
 	}
 	else
 	{
-		kdeSessionManager()->asyncCall( QStringLiteral("logout"),
-										static_cast<int>( LinuxDesktopIntegration::KDE::ShutdownConfirmNo ),
-										static_cast<int>( LinuxDesktopIntegration::KDE::ShutdownTypeReboot ),
-										static_cast<int>( LinuxDesktopIntegration::KDE::ShutdownModeForceNow ) );
-		gnomeSessionManager()->asyncCall( QStringLiteral("RequestReboot") );
-		mateSessionManager()->asyncCall( QStringLiteral("RequestReboot") );
-		xfcePowerManager()->asyncCall( QStringLiteral("Reboot") );
-		systemdLoginManager()->asyncCall( QStringLiteral("Reboot") );
-		consoleKitManager()->asyncCall( QStringLiteral("Restart") );
+        error = SendAppleEventToSystemProcess(kAERestart);
+        if (error == noErr)
+        {
+            // add log that reboot request was successfull
+        }
+        else
+        {
+            // add log that reboot request was not successfull
+        }
 	}
 }
 
-
-
-void LinuxCoreFunctions::powerDown()
+void OsXCoreFunctions::powerDown()
 {
-	if( isRunningAsAdmin() )
+    OSStatus error = noErr;
+    
+    if( isRunningAsAdmin() )
 	{
 		QProcess::startDetached( QStringLiteral("poweroff") );
 	}
 	else
 	{
-		kdeSessionManager()->asyncCall( QStringLiteral("logout"),
-										static_cast<int>( LinuxDesktopIntegration::KDE::ShutdownConfirmNo ),
-										static_cast<int>( LinuxDesktopIntegration::KDE::ShutdownTypeHalt ),
-										static_cast<int>( LinuxDesktopIntegration::KDE::ShutdownModeForceNow ) );
-		gnomeSessionManager()->asyncCall( QStringLiteral("RequestShutdown") );
-		mateSessionManager()->asyncCall( QStringLiteral("RequestShutdown") );
-		xfcePowerManager()->asyncCall( QStringLiteral("Shutdown") );
-		systemdLoginManager()->asyncCall( QStringLiteral("PowerOff") );
-		consoleKitManager()->asyncCall( QStringLiteral("Stop") );
-	}
+        error = SendAppleEventToSystemProcess(kAEShutDown);
+        if (error == noErr)
+        {
+            // add log that reboot request was successfull
+        }
+        else
+        {
+            // add log that reboot request was not successfull
+        }
+    }
 }
 
-
-
-void LinuxCoreFunctions::raiseWindow( QWidget* widget )
+void OsXCoreFunctions::raiseWindow( QWidget* widget )
 {
 	widget->activateWindow();
 	widget->raise();
 }
 
 
-void LinuxCoreFunctions::disableScreenSaver()
+void OsXCoreFunctions::disableScreenSaver()
 {
-	auto display = XOpenDisplay( nullptr );
-
-	// query and disable screen saver
-	int interval, allowExposures;
-	XGetScreenSaver( display, &m_screenSaverTimeout, &interval, &m_screenSaverPreferBlanking, &allowExposures );
-	XSetScreenSaver( display, 0, interval, 0, allowExposures );
-
-	// query and disable DPMS
-	int dummy;
-	if( DPMSQueryExtension( display, &dummy, &dummy ) )
-	{
-		CARD16 powerLevel;
-		BOOL state;
-		if( DPMSInfo( display, &powerLevel, &state ) && state )
-		{
-			m_dpmsEnabled = true;
-			DPMSDisable( display );
-		}
-		else
-		{
-			m_dpmsEnabled = false;
-		}
-
-		DPMSGetTimeouts( display, &m_dpmsStandbyTimeout, &m_dpmsSuspendTimeout, &m_dpmsOffTimeout );
-		DPMSSetTimeouts( display, 0, 0, 0 );
-	}
-	else
-	{
-		qWarning() << Q_FUNC_INFO << "DPMS extension not supported!";
-	}
-
-	XFlush( display );
-	XCloseDisplay( display );
+    // some hints re ScreenSaver API: https://stackoverflow.com/questions/1976520/lock-screen-by-api-in-mac-os-x
+    // NOTE: original also turns off screen blanking
 }
 
 
 
-void LinuxCoreFunctions::restoreScreenSaverSettings()
+void OsXCoreFunctions::restoreScreenSaverSettings()
 {
-	auto display = XOpenDisplay( nullptr );
-
-	// restore screensaver settings
-	int timeout, interval, preferBlanking, allowExposures;
-	XGetScreenSaver( display, &timeout, &interval, &preferBlanking, &allowExposures );
-	XSetScreenSaver( display, m_screenSaverTimeout, interval, m_screenSaverPreferBlanking, allowExposures );
-
-	// restore DPMS settings
-	int dummy;
-	if( DPMSQueryExtension( display, &dummy, &dummy ) )
-	{
-		if( m_dpmsEnabled )
-		{
-			DPMSEnable( display );
-		}
-
-		DPMSSetTimeouts( display, m_dpmsStandbyTimeout, m_dpmsSuspendTimeout, m_dpmsOffTimeout );
-	}
-
-	XFlush( display );
-	XCloseDisplay( display );
 }
 
 
 
-QString LinuxCoreFunctions::activeDesktopName()
+QString OsXCoreFunctions::activeDesktopName()
 {
 	return QString();
 }
 
 
 
-bool LinuxCoreFunctions::isRunningAsAdmin() const
+bool OsXCoreFunctions::isRunningAsAdmin() const
 {
 	return getuid() == 0 || geteuid() == 0;
 }
 
 
 
-bool LinuxCoreFunctions::runProgramAsAdmin( const QString& program, const QStringList& parameters )
+bool OsXCoreFunctions::runProgramAsAdmin( const QString& program, const QStringList& parameters )
 {
-	const auto commandLine = QStringList( program ) + parameters;
-
-	const auto desktop = QProcessEnvironment::systemEnvironment().value( QStringLiteral("XDG_CURRENT_DESKTOP") );
-	if( desktop == QStringLiteral("KDE") &&
-			QStandardPaths::findExecutable( QStringLiteral("kdesudo") ).isEmpty() == false )
-	{
-		return QProcess::execute( QStringLiteral("kdesudo"), commandLine ) == 0;
-	}
-
-	if( QStandardPaths::findExecutable( QStringLiteral("gksudo") ).isEmpty() == false )
-	{
-		return QProcess::execute( QStringLiteral("gksudo"), commandLine ) == 0;
-	}
-
-	return QProcess::execute( QStringLiteral("pkexec"), commandLine ) == 0;
+// Keeping below snippet- investigate possible solutions from https://apple.stackexchange.com/questions/23494/what-option-should-i-give-the-sudo-command-to-have-the-password-asked-through-a/23514
+    
+//    const auto commandLine = QStringList( program ) + parameters;
+//
+//    const auto desktop = QProcessEnvironment::systemEnvironment().value( QStringLiteral("XDG_CURRENT_DESKTOP") );
+//    if( desktop == QStringLiteral("KDE") &&
+//            QStandardPaths::findExecutable( QStringLiteral("kdesudo") ).isEmpty() == false )
+//    {
+//        return QProcess::execute( QStringLiteral("kdesudo"), commandLine ) == 0;
+//    }
+//
+//    if( QStandardPaths::findExecutable( QStringLiteral("gksudo") ).isEmpty() == false )
+//    {
+//        return QProcess::execute( QStringLiteral("gksudo"), commandLine ) == 0;
+//    }
+//
+//    return QProcess::execute( QStringLiteral("pkexec"), commandLine ) == 0;
+    
+    return false; // hard coded as "fail"
 }
 
 
 
-bool LinuxCoreFunctions::runProgramAsUser( const QString& program, const QStringList& parameters,
+bool OsXCoreFunctions::runProgramAsUser( const QString& program, const QStringList& parameters,
 										   const QString& username, const QString& desktop )
 {
 	Q_UNUSED(desktop);
@@ -244,7 +189,7 @@ bool LinuxCoreFunctions::runProgramAsUser( const QString& program, const QString
 		const uid_t m_uid;
 	};
 
-	const auto uid = LinuxUserFunctions::userIdFromName( username );
+	const auto uid = OsXUserFunctions::userIdFromName( username );
 	if( uid <= 0 )
 	{
 		return false;
@@ -258,74 +203,42 @@ bool LinuxCoreFunctions::runProgramAsUser( const QString& program, const QString
 }
 
 
-
-QString LinuxCoreFunctions::genericUrlHandler() const
+QString OsXCoreFunctions::genericUrlHandler() const
 {
-	return QStringLiteral( "xdg-open" );
+	return QStringLiteral( "open" );
 }
 
-
-
-/*! Returns DBus interface for session manager of KDE desktop */
-LinuxCoreFunctions::DBusInterfacePointer LinuxCoreFunctions::kdeSessionManager()
+OSStatus OsXCoreFunctions::SendAppleEventToSystemProcess(AEEventID eventToSendID)
 {
-	return DBusInterfacePointer::create( QStringLiteral("org.kde.ksmserver"),
-										 QStringLiteral("/KSMServer"),
-										 QStringLiteral("org.kde.KSMServerInterface"),
-										 QDBusConnection::sessionBus() );
-}
+    /*
+     * OS X Reboot code from: https://stackoverflow.com/questions/6271300/finder-scripting-bridge-to-shutdown/6283690#6283690
+     * This suggests a newer way: https://forums.developer.apple.com/thread/90702
+     * https://www.64k-tec.de/2010/11/creating-file-shortcuts-on-three-different-operation-systems/
+     */
 
-
-
-/*! Returns DBus interface for session manager of Gnome desktop */
-LinuxCoreFunctions::DBusInterfacePointer LinuxCoreFunctions::gnomeSessionManager()
-{
-	return DBusInterfacePointer::create( QStringLiteral("org.gnome.SessionManager"),
-										 QStringLiteral("/org/gnome/SessionManager"),
-										 QStringLiteral("org.gnome.SessionManager"),
-										 QDBusConnection::sessionBus() );
-}
-
-
-
-/*! Returns DBus interface for session manager of Mate desktop */
-LinuxCoreFunctions::DBusInterfacePointer LinuxCoreFunctions::mateSessionManager()
-{
-	return DBusInterfacePointer::create( QStringLiteral("org.mate.SessionManager"),
-										 QStringLiteral("/org/mate/SessionManager"),
-										 QStringLiteral("org.mate.SessionManager"),
-										 QDBusConnection::sessionBus() );
-}
-
-
-
-/*! Returns DBus interface for Xfce/LXDE power manager */
-LinuxCoreFunctions::DBusInterfacePointer LinuxCoreFunctions::xfcePowerManager()
-{
-	return DBusInterfacePointer::create( QStringLiteral("org.freedesktop.PowerManagement"),
-										 QStringLiteral("/org/freedesktop/PowerManagement"),
-										 QStringLiteral("org.freedesktop.PowerManagement"),
-										 QDBusConnection::sessionBus() );
-}
-
-
-
-/*! Returns DBus interface for systemd login manager */
-LinuxCoreFunctions::DBusInterfacePointer LinuxCoreFunctions::systemdLoginManager()
-{
-	return DBusInterfacePointer::create( QStringLiteral("org.freedesktop.login1"),
-										 QStringLiteral("/org/freedesktop/login1"),
-										 QStringLiteral("org.freedesktop.login1.Manager"),
-										 QDBusConnection::systemBus() );
-}
-
-
-
-/*! Returns DBus interface for ConsoleKit manager */
-LinuxCoreFunctions::DBusInterfacePointer LinuxCoreFunctions::consoleKitManager()
-{
-	return DBusInterfacePointer::create( QStringLiteral("org.freedesktop.ConsoleKit"),
-										 QStringLiteral("/org/freedesktop/ConsoleKit/Manager"),
-										 QStringLiteral("org.freedesktop.ConsoleKit.Manager"),
-										 QDBusConnection::systemBus() );
+//    AEAddressDesc targetDesc;
+//    static const ProcessSerialNumber kPSNOfSystemProcess = {0, kSystemProcess };
+//    AppleEvent eventReply = {typeNull, NULL};
+//    AppleEvent eventToSend = {typeNull, NULL};
+//
+//    OSStatus status = AECreateDesc(typeProcessSerialNumber,
+//                                   &kPSNOfSystemProcess, sizeof(kPSNOfSystemProcess), &targetDesc);
+//
+//    if (status != noErr) return status;
+//
+//    status = AECreateAppleEvent(kCoreEventClass, eventToSendID,
+//                                &targetDesc, kAutoGenerateReturnID, kAnyTransactionID, &eventToSend);
+//
+//    AEDisposeDesc(&targetDesc);
+//
+//    if (status != noErr) return status;
+//
+//    status = AESendMessage(&eventToSend, &eventReply,
+//                           kAENormalPriority, kAEDefaultTimeout);
+//
+//    AEDisposeDesc(&eventToSend);
+//    if (status != noErr) return status;
+//    AEDisposeDesc(&eventReply);
+//    return status;
+    return *(new OSStatus());
 }

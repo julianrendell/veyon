@@ -1,5 +1,5 @@
 /*
- * LinuxInputDeviceFunctions.cpp - implementation of LinuxInputDeviceFunctions class
+ * OsXInputDeviceFunctions.cpp - implementation of OsXInputDeviceFunctions class
  *
  * Copyright (c) 2017-2018 Tobias Junghans <tobydox@veyon.io>
  *
@@ -23,13 +23,10 @@
  */
 
 #include "PlatformServiceFunctions.h"
-#include "LinuxInputDeviceFunctions.h"
-#include "LinuxKeyboardShortcutTrapper.h"
+#include "OsXInputDeviceFunctions.h"
+#include "OsXKeyboardShortcutTrapper.h"
 
-#include <X11/XKBlib.h>
-
-
-LinuxInputDeviceFunctions::LinuxInputDeviceFunctions() :
+OsXInputDeviceFunctions::OsXInputDeviceFunctions() :
 	m_inputDevicesDisabled( false ),
 	m_origKeyTable( nullptr ),
 	m_keyCodeMin( 0 ),
@@ -41,7 +38,7 @@ LinuxInputDeviceFunctions::LinuxInputDeviceFunctions() :
 
 
 
-void LinuxInputDeviceFunctions::enableInputDevices()
+void OsXInputDeviceFunctions::enableInputDevices()
 {
 	if( m_inputDevicesDisabled )
 	{
@@ -53,7 +50,7 @@ void LinuxInputDeviceFunctions::enableInputDevices()
 
 
 
-void LinuxInputDeviceFunctions::disableInputDevices()
+void OsXInputDeviceFunctions::disableInputDevices()
 {
 	if( m_inputDevicesDisabled == false )
 	{
@@ -65,14 +62,14 @@ void LinuxInputDeviceFunctions::disableInputDevices()
 
 
 
-KeyboardShortcutTrapper* LinuxInputDeviceFunctions::createKeyboardShortcutTrapper( QObject* parent )
+KeyboardShortcutTrapper* OsXInputDeviceFunctions::createKeyboardShortcutTrapper( QObject* parent )
 {
-	return new LinuxKeyboardShortcutTrapper( parent );
+	return new OsXKeyboardShortcutTrapper( parent );
 }
 
 
 
-bool LinuxInputDeviceFunctions::configureSoftwareSAS( bool enabled )
+bool OsXInputDeviceFunctions::configureSoftwareSAS( bool enabled )
 {
 	Q_UNUSED(enabled);
 
@@ -81,47 +78,14 @@ bool LinuxInputDeviceFunctions::configureSoftwareSAS( bool enabled )
 
 
 
-void LinuxInputDeviceFunctions::setEmptyKeyMapTable()
+void OsXInputDeviceFunctions::setEmptyKeyMapTable()
 {
-	if( m_origKeyTable )
-	{
-		XFree( m_origKeyTable );
-	}
 
-	Display* display = XOpenDisplay( nullptr );
-	XDisplayKeycodes( display, &m_keyCodeMin, &m_keyCodeMax );
-	m_keyCodeCount = m_keyCodeMax - m_keyCodeMin;
-
-	m_origKeyTable = XGetKeyboardMapping( display, static_cast<KeyCode>( m_keyCodeMin ),
-										  m_keyCodeCount, &m_keySymsPerKeyCode );
-
-	KeySym* newKeyTable = XGetKeyboardMapping( display, static_cast<KeyCode>( m_keyCodeMin ),
-											   m_keyCodeCount, &m_keySymsPerKeyCode );
-
-	for( int i = 0; i < m_keyCodeCount * m_keySymsPerKeyCode; i++ )
-	{
-		newKeyTable[i] = 0;
-	}
-
-	XChangeKeyboardMapping( display, m_keyCodeMin, m_keySymsPerKeyCode,
-							newKeyTable, m_keyCodeCount );
-	XFlush( display );
-	XFree( newKeyTable );
-	XCloseDisplay( display );
 }
 
 
 
-void LinuxInputDeviceFunctions::restoreKeyMapTable()
+void OsXInputDeviceFunctions::restoreKeyMapTable()
 {
-	Display* display = XOpenDisplay( nullptr );
 
-	XChangeKeyboardMapping( display, m_keyCodeMin, m_keySymsPerKeyCode,
-							static_cast<KeySym *>( m_origKeyTable ), m_keyCodeCount );
-
-	XFlush( display );
-	XCloseDisplay( display );
-
-	XFree( m_origKeyTable );
-	m_origKeyTable = nullptr;
 }

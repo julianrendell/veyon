@@ -26,16 +26,16 @@
 
 #include "KeyboardShortcutTrapper.h"
 
-class LinuxKeyboardShortcutTrapper : public KeyboardShortcutTrapper
+class OsXKeyboardShortcutTrapper : public KeyboardShortcutTrapper
 {
 	Q_OBJECT
 public:
-	LinuxKeyboardShortcutTrapper( QObject* parent = nullptr ) :
+	OsXKeyboardShortcutTrapper( QObject* parent = nullptr ) :
 	    KeyboardShortcutTrapper( parent )
 	{
 	}
 
-	~LinuxKeyboardShortcutTrapper() override
+	~OsXKeyboardShortcutTrapper() override
 	{
 	}
 
