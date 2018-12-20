@@ -187,7 +187,7 @@ ENDIF()
 # configure files for Veyon
 SET(VEYONCONFIG ${CMAKE_BINARY_DIR}/${VEYON_CORE_INCLUDE_DIR}/veyonconfig.h)
 
-SET(IN_FILES ${VEYON_CORE_INCLUDE_DIR}/veyonconfig.h nsis/veyon.nsi core/builddata.qrc server/veyon-server.rc service/veyon-service.rc master/data/veyon-master.desktop master/veyon-master.rc configurator/data/veyon-configurator.desktop configurator/data/io.veyon.veyon-configurator.policy configurator/veyon-configurator.rc cli/veyon-cli.rc worker/veyon-worker.rc)
+SET(IN_FILES ${VEYON_CORE_INCLUDE_DIR}/veyonconfig.h nsis/veyon.nsi core/builddata.qrc server/veyon-server.rc service/veyon-service.rc master/data/veyon-master.desktop master/veyon-master.rc configurator/data/veyon-configurator.desktop configurator/data/io.veyon.veyon-configurator.policy configurator/veyon-configurator.rc cli/veyon-cli.rc cli/veyon-cliw.rc worker/veyon-worker.rc)
 FOREACH(f ${IN_FILES})
     CONFIGURE_FILE(${CMAKE_SOURCE_DIR}/${f}.in ${CMAKE_BINARY_DIR}/${f} @ONLY)
 ENDFOREACH(f ${IN_FILES})
@@ -259,7 +259,7 @@ IF(WIN32)
 			COMMAND mkdir -p ${TMP}/interception
 			COMMAND cp ${CMAKE_SOURCE_DIR}/3rdparty/interception/* ${TMP}/interception
 			COMMAND cp ${CMAKE_SOURCE_DIR}/3rdparty/ddengine/${DLL_DDENGINE} ${TMP}
-			COMMAND cp core/veyon-core.dll server/veyon-server.exe service/veyon-service.exe plugins/vncserver/ultravnc-builtin/vnchooks/vnchooks.dll master/veyon-master.exe configurator/veyon-configurator.exe cli/veyon-cli.exe worker/veyon-worker.exe ${TMP}
+			COMMAND cp core/veyon-core.dll server/veyon-server.exe service/veyon-service.exe plugins/vncserver/ultravnc-builtin/vnchooks/vnchooks.dll master/veyon-master.exe configurator/veyon-configurator.exe cli/*.exe worker/veyon-worker.exe ${TMP}
 			COMMAND mkdir -p ${TMP}/plugins
 			COMMAND cp plugins/*/*.dll ${TMP}/plugins/
 			COMMAND cp plugins/*/*/*.dll ${TMP}/plugins/
@@ -287,7 +287,7 @@ IF(WIN32)
 			COMMAND cp ${CMAKE_SOURCE_DIR}/COPYING ${TMP}
 			COMMAND cp ${CMAKE_SOURCE_DIR}/COPYING ${TMP}/LICENSE.TXT
 			COMMAND cp ${CMAKE_SOURCE_DIR}/README.md ${TMP}/README.TXT
-			COMMAND todos ${TMP}/*.txt ${TMP}/*.TXT
+			COMMAND todos ${TMP}/*.TXT
 			COMMAND cp nsis/veyon.nsi ${TMP}
 			COMMAND makensis ${TMP}/veyon.nsi
 			COMMAND mv ${TMP}/veyon-*setup.exe .
